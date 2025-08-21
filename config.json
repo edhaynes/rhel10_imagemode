@@ -1,0 +1,14 @@
+{
+  "customizations": {
+    "user": [
+      {
+        "name": "core",
+        "password": "redhat",
+        "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCuT9Nncq+Lt/C31hlh1QMATNnjkCMuDjNQWcqkotE6EzNGh8Zn1DCBpvY7l9re1W9gamJ00yusDA3FhqlypNPQFWwe8P151XTj7L234sva8yjtT1hhivp5VMaBD/hepEiP2LmXdz3pxuMOmaqYODnLtwMFwB8B3NyIW/+VqyAxY/T4jn08fFKQlwWeKXvxLvkkb9i71TtVfwTlcNBwmEmpSIYXByDPx1vxTeOJvNwrZmaKAz1iZRdqFNUI0TLd3oQLjwZTZt3im28tuNAaG9BiOLww1oYKLOjxMA0nvjzuJuvlHz2DBkgUnefhO8jWy5kfCrKC3ZHhaUbl7MIlwRpUsD8Uj913rbq2xJdDXA9CEZgzeyaYVaCySoP80GuKXC0lZlFcxFA0/Ac3C+DpYVBfx+Zpr3rygYaE88mMrt7g+q0KFysc/krMWBKx15dBbHl4rym/Nvji62j/g+Q8sZ5QQqPIwsaXgbHwJzRwUP0G6jUariDatm7IrZuxXx5gILIbK/x3CRlT9toQJld1xlOR+XPb3C2LAv83ywNF8Ymd8s2302e1Ow5lBcyFkEpzULSZ8hH3F0xFmmctp+3V69iNGMKScXOS22TBt7QqGJdr4avqyPTBh2gZJZMP3Zgs4SNct8z0fvgHSvhGidemo78Rnd4HRrfftRbjFlv2rw+jyQ== ehaynes@ehaynes-mac",
+        "groups": [
+          "wheel"
+        ]
+      }
+    ]
+  }
+}
