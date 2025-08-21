@@ -1,0 +1,5 @@
+rhel10_vm:
+  hosts:
+    192.168.122.52:
+      ansible_user: core
+      ansible_ssh_private_key_file: /home/ehaynes/.ssh/id_rsa

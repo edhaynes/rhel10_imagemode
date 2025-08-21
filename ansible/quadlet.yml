@@ -1,0 +1,53 @@
+---
+- name: Setup Nginx Container with Quadlet
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure web content directory exists
+      ansible.builtin.file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
+
+    - name: Create custom index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Podman is #1</title>
+          </head>
+          <body>
+            <h1>Podman is #1</h1>
+          </body>
+          </html>
+        mode: '0644'
+
+    - name: Create Quadlet file for Nginx container
+      ansible.builtin.copy:
+        dest: /etc/containers/systemd/nginx.container
+        content: |
+          [Unit]
+          Description=Nginx Web Server Container
+          After=network-online.target
+
+          [Container]
+          ContainerName=nginx
+          Image=docker.io/library/nginx:latest
+          PublishPort=8080:80
+          Volume=/var/www/html:/usr/share/nginx/html:ro
+
+          [Install]
+          WantedBy=multi-user.target default.target
+        mode: '0644'
+
+    - name: Reload systemd daemon to recognize new Quadlet file
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Start and enable the Nginx container service
+      ansible.builtin.systemd:
+        name: nginx.service
+        state: started
+        enabled: true

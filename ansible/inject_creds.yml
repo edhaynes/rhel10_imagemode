@@ -1,0 +1,39 @@
+---
+- name: Deploy Quay.io robot credentials
+  hosts: rhel10_vm
+  become: true
+
+  vars_files:
+    - vars/quay_secrets.yml
+
+  vars:
+    quay_username: "ehaynes+fredtherobotaccount"   # Quay robot account name
+    authfile_path: "/etc/containers/auth.json"
+
+  tasks:
+    - name: Ensure containers config directory exists
+      file:
+        path: /etc/containers
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generate base64-encoded quay.io auth
+      set_fact:
+        quay_auth_b64: "{{ (quay_username + ':' + quay_password) | b64encode }}"
+
+    - name: Write quay.io auth.json
+      copy:
+        dest: "{{ authfile_path }}"
+        content: |
+          {
+            "auths": {
+              "quay.io": {
+                "auth": "{{ quay_auth_b64 }}"
+              }
+            }
+          }
+        owner: root
+        group: root
+        mode: '0600'

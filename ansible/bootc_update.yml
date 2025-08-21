@@ -1,0 +1,37 @@
+---
+- name: Switch bootc image and conditionally reboot RHEL10 VM
+  hosts: rhel10_vm
+  become: yes
+  vars:
+    bootc_image: quay.io/ehaynes/imagemode:1.4
+  tasks:
+    - name: Check current bootc image
+      ansible.builtin.command:
+        cmd: bootc status --json
+      register: bootc_status
+      changed_when: false
+      failed_when: bootc_status.rc != 0
+
+    - name: Parse current image
+      ansible.builtin.set_fact:
+        current_image: "{{ (bootc_status.stdout | from_json).spec.image.image }}"
+      when: bootc_status.rc == 0
+
+    - name: Execute bootc switch to specified image
+      ansible.builtin.command:
+        cmd: bootc switch {{ bootc_image }}
+      register: bootc_result
+      changed_when: >
+        bootc_result.rc == 0 and
+        (current_image is not defined or current_image != '{{ bootc_image }}')
+      failed_when: bootc_result.rc != 0
+
+    - name: Reboot the VM if bootc switch made changes
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+      when: bootc_result.changed
+
+    - name: Display bootc switch output
+      ansible.builtin.debug:
+        msg: "{{ bootc_result.stdout_lines }}"
+      when: bootc_result.stdout_lines is defined
