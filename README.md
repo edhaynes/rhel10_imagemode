@@ -15,7 +15,7 @@ This is a demonstration of a basic lifecycle workflow of managing an immutable R
 You'll need a container registry account like quay.io to push and pull containers from.  This also needs to be run from a registered RHEL system (i.e. where you've run subscription-manager --register) or you can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora vm, not from the mac cli which has problems with sudo commands.  You can do this with 
 
 #for mac peeps
-podman machine ssh --username core
+'podman machine ssh --username core'
 #note this user core has sudo access
 
 First login to applicable registries
