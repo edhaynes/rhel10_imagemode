@@ -47,7 +47,7 @@ sudo podman pull quay.io/youraccount/imagemode:1.0
 
 sudo podman run --rm --name imagemode-bootc-image-builder --tty --privileged --security-opt label=type:unconfined_t -v /var/home/core/rhel10_imagemode:/output/ -v /var/lib/containers/storage:/var/lib/containers/storage -v /var/home/core/rhel10_imagemode/config.json:/config.json:ro --label bootc.image.builder=true registry.redhat.io/rhel10/bootc-image-builder:latest quay.io/youraccount/imagemode:1.0 --output /output/ --progress verbose --type qcow2 --target-arch amd64 --chown 1000:1000
 
-Running VM on linux
+# Running VM on linux
 
 cp ./qcow2/disk.qcow2 /var/lib/libvirt/.
 
@@ -55,7 +55,7 @@ virt-install   --name r10_image1   --memory 2048   --vcpus 2   --disk path=/var/
 
 sudo virsh --connect qemu:///session start r10_image1
 
-Running on ARM based mac using UTM
+# Running on ARM based mac using UTM
 
 1. Download the .qcow2 file: From Mac:
    podman machine cp podman-machine-default:/var/home/core/rhel10_imagemode/qcow2/disk.qcow2 . 
