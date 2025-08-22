@@ -73,7 +73,9 @@ sudo virsh --connect qemu:///session console r10_imagemode
 # Running on ARM based mac using UTM
 
 1. Download the .qcow2 file: From Mac:
-   podman machine cp podman-machine-default:/var/home/core/rhel10_imagemode/qcow2/disk.qcow2 . 
+   ```bash
+   podman machine cp podman-machine-default:/var/home/core/rhel10_imagemode/qcow2/disk.qcow2 .
+   ```
 2. Create a New VM in UTM:
 Open UTM and click the "Create New Virtual Machine" button. 
 Select "Virtualize"  
