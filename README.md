@@ -101,11 +101,12 @@ Select the repo you used to push your bootable container image, give it read per
 
 Now you can click your robot account and copy your name and token.
 
-Now in ansible/vars replace quay_secrets.yml with
-```bash
----
-quay_password: "your_robot_account_token_here"
-```
+Edit the 
+
+echo -e "---\nquay_password: \"your_robot_account_token_here\"" | ansible-vault create vars/quay_secrets.yml --vault-password-file=vault_pass.txt
+
+
+
 
 
 
