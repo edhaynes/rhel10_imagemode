@@ -87,6 +87,29 @@ Click "New" and select "virtio".
 Choose the "Import" option and select your downloaded .qcow2 file. 
 Save and boot your vm
 
+# Injecting repository credentials
+
+Since you don't want just anyone getting your repo credentials we are going to create robot credentials on quay.io and encrypt them into ansible vault, so we can have a playbook that doesn't expose your credentials when you run it.  Instructions are for Quay.io.
+
+Login to Quay.io, click your login name under "Users and Organizations", and you should see a list of your repositories.
+
+In the upper left you will see a grey icon that looks like a robot(when you hover over it says 'robot accounts').  Click it.
+
+Click Create Robot Account, and provide name and description.  In my case I'll use "jasper" for the name.
+
+Select the repo you used to push your bootable container image, give it read permissions, then click add permissions button.
+
+Now you can click your robot account and copy your name and token.
+
+Now in ansible/vars replace quay_secrets.yml with
+```bash
+---
+quay_password: "your_robot_account_token_here"
+```
+
+
+
+
 
 
 
