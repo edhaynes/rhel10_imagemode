@@ -18,6 +18,7 @@ You'll need a container registry account like quay.io to push and pull container
 First login to applicable registries
 
 podman login quay.io
+
 podman login registry.redhat.io
 
 This image will have two user accounts, core and redhat.  core is defined in the config.json file, where you also should change the password and put your own public ssh key.  redhat is created in the containerfile, and we will pass the password we define in password.txt at build time so the Containerfile doesn't contain the plaintext password.  
