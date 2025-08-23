@@ -107,12 +107,16 @@ Edit the vars/quay_secrets.yml file with your credentials then encrypt with
 ```bash
 ansible-vault encrypt vars/quay_secrets.yml
 ```
-
 You will be asked for a password you will use to decrypt when running playbook.
 
+Run playbook with
+```bash
+ansible-playbook -i inventory.yml inject_creds.yml --ask-become --ask-vault-pass
+```
 
+# Registering System and enabling Red Hat Insights
 
-
+another
 
 
 
