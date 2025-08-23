@@ -20,6 +20,8 @@ You'll need a container registry account like quay.io to push and pull container
 podman machine ssh --username core
 ```
 #note this user core has sudo access
+# Setting up
+To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images - I use quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
 
 First login to applicable registries
 
@@ -34,9 +36,9 @@ git clone this repo
 git clone https://github.com/edhaynes/rhel10_imagemode.git
 ```
 
-This image will have two user accounts, core and redhat.  core is defined in the config.json file, where you also should change the password and put your own public ssh key.  redhat is created in the containerfile, and we will pass the password we define in password.txt at build time so the Containerfile doesn't contain the plaintext password.  
+The image you'll will have two user accounts, **core** and **redhat**.  core is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  redhat is created in the containerfile, and we will pass the password we define in password.txt at build time so the Containerfile doesn't contain the plaintext password.  
 
-Define password for user redhat.  Somewhere in a directory outside of git put a password.txt with your preferred password and give it permissions 600.
+Define password for user **redhat**.  Somewhere in a directory outside of git put a password.txt with your preferred password and give it permissions 600.
 
 Build the initial bootable container image and push to repo.  Note this command needs to be run from directory with Containerfile in it.
 We're defining a --secret id redhat-password with the path to your password.txt.  Podman build temporarily mounts this at build time then unmounts it so your plaintext password doesn't end up in the image.
@@ -71,7 +73,7 @@ sudo virsh --connect qemu:///session start r10_imagemode
 sudo virsh --connect qemu:///session console r10_imagemode
 ```
 
-# Running on ARM based mac using UTM
+# Running VM on ARM based mac using UTM
 
 1. Download the .qcow2 file: From Mac:
    ```bash
@@ -141,9 +143,29 @@ To run the quadlet file:
 ansible-playbook -i inventory.yml quadlet.yml --ask-become
 ```
 
+# Build a new version of the base image with updates
 
+Now lets say a new CVE comes out and you wish to update the base image, or you wish to tweak the content PHP server displays.  You just podman build the original containerfile, tag it with the appropriate version number, and push it to the repo.  An ansible playbook is provided to run "bootc switch" to change to whatever version you wish.  In this example I use flag "--pull-always" to get the latest revision of RHEL10 from the repo so I get the latest CVE fixes.  
 
+From directory with Containerfile
+```bash
+podman build  --pull-always --secret id=redhat-password,src=./password.txt   -t quay.io/ehaynes/imagemode:1.1 .
+```
+```bash
+podman push quay.io/ehaynes/imagemode:1.1
+```
+# Update to new image
+Now run ansible playbook that switches to version 1.1.  RHEL will stage this update and boot into it when it reboots, playbook automatically reboots if there is a change.  First edit bootc_update.yml to update "bootc_image: quay.io/ehaynes/rhel10:1.1" to reflect your repository location and version you wish to switch to.
+```bash
+ansible-playbook -i inventory.yml bootc_update.yml --ask-become
+```
+If this is a new version the playbook will automatically reboot you into the new image.  
 
+# Rollback to old image 
+If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.
+
+# Conclusion
+Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  Let me know if you run into issues or have suggestions to improve this.
 
 
 
