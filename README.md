@@ -61,10 +61,10 @@ sudo podman run --rm --name imagemode-bootc-image-builder --tty --privileged --s
 cp ./qcow2/disk.qcow2 /var/lib/libvirt/.
 ```
 ```bash
-virt-install   --name r10_image1   --memory 2048   --vcpus 2   --disk path=/var/lib/libvirt/images/imagemode.qcow2,format=qcow2   --import   --os-variant rhel10.0   --noautoconsole
+virt-install   --name r10_imagemode   --memory 2048   --vcpus 2   --disk path=/var/lib/libvirt/images/imagemode.qcow2,format=qcow2   --import   --os-variant rhel10.0   --noautoconsole
 ```
 ```bash
-sudo virsh --connect qemu:///session start r10_image1
+sudo virsh --connect qemu:///session start r10_imagemode
 ```
 ```bash
 sudo virsh --connect qemu:///session console r10_imagemode
@@ -103,9 +103,12 @@ Select the repo you used to push your bootable container image, give it read per
 
 Now you can click your robot account and copy your name and token.
 
-Edit the 
+Edit the vars/quay_secrets.yml file with your credentials then encrypt with
+```bash
+ansible-vault encrypt vars/quay_secrets.yml
+```
 
-echo -e "---\nquay_password: \"your_robot_account_token_here\"" | ansible-vault create vars/quay_secrets.yml --vault-password-file=vault_pass.txt
+You will be asked for a password you will use to decrypt when running playbook.
 
 
 
