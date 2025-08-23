@@ -1,0 +1,33 @@
+---
+- name: Register RHEL 10 bootc VM with subscription-manager
+  hosts: rhel10_vm
+  become: true
+  vars_files:
+    - vars/rhsm_secrets.yml
+  tasks:
+    - name: Register system with Red Hat Subscription Manager
+      ansible.builtin.command:
+        cmd: subscription-manager register --username {{ rhsm_username }} --password {{ rhsm_password }}
+      #no_log: true  # Prevent credentials from appearing in logs
+      register: rhsm_register
+      changed_when: "'System has been registered' in rhsm_register.stdout"
+      failed_when: "'Error' in rhsm_register.stderr"
+
+    - name: Enable RHEL 10 BaseOS repository
+      ansible.builtin.command:
+        cmd: subscription-manager repos --enable rhel-10-for-x86_64-baseos-rpms
+      when: rhsm_register.changed
+      no_log: true
+
+    - name: Enable RHEL 10 AppStream repository
+      ansible.builtin.command:
+        cmd: subscription-manager repos --enable rhel-10-for-x86_64-appstream-rpms
+      when: rhsm_register.changed
+      no_log: true
+
+    - name: Register system with Red Hat Insights
+      ansible.builtin.command:
+        cmd: insights-client --register
+      register: insights_register
+      changed_when: "'Successfully registered host' in insights_register.stdout"
+      failed_when: "'Error' in insights_register.stderr or insights_register.rc != 0"
