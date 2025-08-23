@@ -7,25 +7,32 @@
     - vars/quay_secrets.yml
 
   vars:
-    quay_username: "ehaynes+fredtherobotaccount"   # Quay robot account name
-    authfile_path: "/etc/containers/auth.json"
+    quay_core_home: "/var/home/core"
+    quay_repo: "quay.io/ehaynes/rhel10:1.0"
+    root_authfile: "/root/.config/containers/auth.json"
+    ostree_authfile: "/etc/ostree/auth.json"
+    core_authfile: "{{ quay_core_home }}/.config/containers/auth.json"
 
   tasks:
-    - name: Ensure containers config directory exists
+    - name: Ensure containers config directories exist
       file:
-        path: /etc/containers
+        path: "{{ item.path }}"
         state: directory
-        owner: root
-        group: root
-        mode: '0755'
+        owner: "{{ item.owner }}"
+        group: "{{ item.group }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: "/root/.config/containers", owner: "root", group: "root", mode: "0700" }
+        - { path: "/etc/ostree", owner: "root", group: "root", mode: "0755" }
+        - { path: "{{ quay_core_home }}/.config/containers", owner: "core", group: "core", mode: "0700" }
 
     - name: Generate base64-encoded quay.io auth
       set_fact:
         quay_auth_b64: "{{ (quay_username + ':' + quay_password) | b64encode }}"
 
-    - name: Write quay.io auth.json
+    - name: Template quay.io auth.json for root, ostree, and core
       copy:
-        dest: "{{ authfile_path }}"
+        dest: "{{ item.dest }}"
         content: |
           {
             "auths": {
@@ -34,6 +41,10 @@
               }
             }
           }
-        owner: root
-        group: root
+        owner: "{{ item.owner }}"
+        group: "{{ item.group }}"
         mode: '0600'
+      loop:
+        - { dest: "{{ root_authfile }}", owner: "root", group: "root" }
+        - { dest: "{{ ostree_authfile }}", owner: "root", group: "root" }
+        - { dest: "{{ core_authfile }}", owner: "core", group: "core" }
