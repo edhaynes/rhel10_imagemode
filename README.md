@@ -56,6 +56,7 @@ sudo podman pull quay.io/youraccount/imagemode:1.0
 sudo podman run --rm --name imagemode-bootc-image-builder --tty --privileged --security-opt label=type:unconfined_t -v /var/home/core/rhel10_imagemode:/output/ -v /var/lib/containers/storage:/var/lib/containers/storage -v /var/home/core/rhel10_imagemode/config.json:/config.json:ro --label bootc.image.builder=true registry.redhat.io/rhel10/bootc-image-builder:latest quay.io/youraccount/imagemode:1.0 --output /output/ --progress verbose --type qcow2 --target-arch amd64 --chown 1000:1000
 ```
 # Running VM on linux
+Now that we have a bootable qcow2 image lets run it in a VM.
 
 ```bash
 cp ./qcow2/disk.qcow2 /var/lib/libvirt/.
@@ -89,6 +90,9 @@ Click "New" and select "virtio".
 Choose the "Import" option and select your downloaded .qcow2 file. 
 Save and boot your vm
 
+# Prepping for Ansible
+We are going to do some lifecycle events with ansible playbooks, so update the inventory.yml file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
+
 # Injecting repository credentials
 Updates to the system are done "atomically", you rebuild the original containerfile, bringing in any software updates and changes, and push it to your container registry with a new version number.  You'll use ansible to do a "bootc switch" pointing to the new image, and reboot to get the updates.  In image mode RHEL you can also choose to roll back to a previous image.  When this happens any changes to /var (user accounts & app data) persist across rollback but any config changes to /etc are discarded.  
 
@@ -116,6 +120,26 @@ ansible-playbook -i inventory.yml inject_creds.yml --ask-become --ask-vault-pass
 ```
 
 # Registering System and enabling Red Hat Insights
+
+Red Hat insights is a useful way to monitor and provide, well, insights to your deployed RHEL10 imagemode VM.  To enable this update the /vars/rhsm_secrets.yml file with you Red Hat login and password.  If you don't have a Red Hat account it's easy to get one at developer.redhat.com that has a few subscriptions you can experiment with.
+```bash
+ansible-vault encrypt vars/rhsm_secrets.yml
+```
+Run the ansible playbook to register system to your account and enable insights.
+```bash
+ansible-playbook -i inventory.yml rhsm_register.yml --ask-become --ask-vault-pass
+```
+Now you should be able to see your instance at https://console.redhat.com/insights
+
+
+# Using Quadlet to run an Nginx server, update it with changes
+
+Quadlet is a perfect fit for immutable OSs, you keep a small, hardened base image and then deploy applications on it using Quadlet.  Quadlet is a way to define applications in a container like fashion and have podman autogenerate the applicable files to run it via systemd at runtime.   To do this you put a quadlet file in any of several locations, depending if you want the app to run with user permissions or as a system service.  A playbook is provided to launch an Nginx server on your RHEL10 imagemode vm and map it to port 8080.  If you looked at the original containerfile you'll notice a PHP server on port 80 as well.  If you bridge your VM connection you should be able to browse to it locally.  For mac users sometimes Chrome has strict security policies with localnetwork stuff so use Safari to test.
+
+To run the quadlet file:
+```bash
+ansible-playbook -i inventory.yml quadlet.yml --ask-become
+```
 
 
 
