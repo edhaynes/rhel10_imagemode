@@ -186,6 +186,7 @@ If for some reason there is an issue with the new image `sudo bootc rollback` fr
 # Other cool stuff
 Since you want to keep your immutable image as small as possible you might not install common debugging tools like tcpdump.  How can you have access to these tools for debugging sessions?  There is a cool utility called "toolbox" that downloads and runs a container (with very permissive configuration) that you can use to run debugging tools.  Since this container has DNF installed you can install tools like tcpdump and use them to debug.  Here is an example below:
 
+```
 [core@localhost ~]$ sudo toolbox enter
 [core@localhost ~]$ sudo toolbox enter
 No Toolbx containers found. Create now? [y/N] y
@@ -200,7 +201,7 @@ all your tools.
 ⬢ [root@toolbx ~]# which tcpdump
 /usr/bin/which: no tcpdump in (/root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)
 ⬢ [root@toolbx ~]# sudo dnf install tcpdump
-
+```
 
 # Conclusion
 Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did all state changes from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this tutorial.
