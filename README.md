@@ -111,7 +111,7 @@ Save and boot your vm
 If you're running this in a home lab I'd recommend using a bridged network connection so it gets a local IP address you can connect to PHP and Nginx servers your image is running.
 
 # Prepping for Ansible
-We are going to do some lifecycle events with ansible playbooks, so update the **inventory.yml** file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
+We are going to do some lifecycle events with ansible playbooks, so go into the /ansible directory and update the **inventory.yml** file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
 
 # Injecting repository credentials
 Updates to the system are done "atomically", you rebuild the original containerfile, bringing in any software updates and changes, and push it to your container registry with a new version number.  You'll use ansible to do a "**bootc switch**" pointing to the new image, and reboot to get the updates.  In image mode RHEL you can also choose to roll back to a previous image.  When this happens any changes to /var (user accounts & app data) persist across rollback but any config changes to /etc are discarded.  This can be very useful if you did something in /etc that prevented you from booting successfully, one time I messed up SELinux configuration and was able to boot to old image to recover.
