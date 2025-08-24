@@ -37,7 +37,7 @@ git clone https://github.com/edhaynes/rhel10_imagemode.git
 ```
 Make sure your build system is subscribed
 ```bash
-sudo subscription manager --register
+sudo subscription-manager --register
 ```
 
 The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
