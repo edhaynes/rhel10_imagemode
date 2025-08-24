@@ -45,7 +45,8 @@ We're defining a --secret id redhat-password with the path to your password.txt.
 
 ```bash
 podman build   --secret id=redhat-password,src=/path/to/password.txt   -t quay.io/youraccount/imagemode:1.0 .
-
+```
+```bash
 podman push quay.io/youraccount/imagemode:1.0
 ```
 
