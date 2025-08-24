@@ -181,10 +181,29 @@ ansible-playbook -i inventory.yml bootc_update.yml --ask-become
 If this is a new version the playbook will automatically reboot you into the new image.  If you get an error about registery permissions double check that your quay.io robot credentials have access to the repo you're trying to access.
 
 # Rollback to old image 
-If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.  If you like you could create a systemd task that upon upgrades checks the health of your application, and if application health dies automatically do a **bootc rollback**.  This ability to do rollbacks is very powerful for preventing outages due to dumb mistakes.  There is also the capability (not covered here) to "pin" certain images, like your failback always works image, so they are always available.  They do take storage, but since they are stored locally they are always available even if you had connectivity problems with your repo.  
+If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.  If you like you could create a systemd task that upon upgrades checks the health of your application, and if application health dies automatically do a **bootc rollback**.  This ability to do rollbacks is very powerful for preventing outages due to dumb mistakes.  There is also the capability (not covered here) to "pin" certain images, like your failback always works image, so they are always available.  They do take storage, but since they are stored locally they are always available even if you had connectivity problems with your repo.
+
+# Other cool stuff
+Since you want to keep your immutable image as small as possible you might not install common debugging tools like tcpdump.  How can you have access to these tools for debugging sessions?  There is a cool utility called "toolbox" that downloads and runs a container (with very permissive configuration) that you can use to run debugging tools.  Since this container has DNF installed you can install tools like tcpdump and use them to debug.  Here is an example below:
+
+[core@localhost ~]$ sudo toolbox enter
+[core@localhost ~]$ sudo toolbox enter
+No Toolbx containers found. Create now? [y/N] y
+Image required to create Toolbx container.
+Download registry.access.redhat.com/ubi10/toolbox:10.0 (245.2MB)? [y/N]: y
+
+Welcome to the Toolbx; a container where you can install and run
+all your tools.
+
+ - To create a new tools container, run 'toolbox create'.
+
+⬢ [root@toolbx ~]# which tcpdump
+/usr/bin/which: no tcpdump in (/root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)
+⬢ [root@toolbx ~]# sudo dnf install tcpdump
+
 
 # Conclusion
-Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did everything from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this tutorial.
+Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did all state changes from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this tutorial.
 
 
 
