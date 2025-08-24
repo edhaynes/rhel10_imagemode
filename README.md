@@ -77,7 +77,7 @@ sudo virsh --connect qemu:///session start r10_imagemode
 ```bash
 sudo virsh --connect qemu:///session console r10_imagemode
 ```
-
+You can login to the system using user **core** and the password you defined earlier in config.json.
 # Running VM on ARM based mac using UTM
 
 1. Download the .qcow2 file: From Mac:
@@ -100,12 +100,12 @@ Save and boot your vm
 If you're running this in a home lab I'd recommend using a bridged network connection so it gets a local IP address you can connect to PHP and Nginx servers your image is running.
 
 # Prepping for Ansible
-We are going to do some lifecycle events with ansible playbooks, so update the inventory.yml file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
+We are going to do some lifecycle events with ansible playbooks, so update the **inventory.yml** file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
 
 # Injecting repository credentials
-Updates to the system are done "atomically", you rebuild the original containerfile, bringing in any software updates and changes, and push it to your container registry with a new version number.  You'll use ansible to do a "bootc switch" pointing to the new image, and reboot to get the updates.  In image mode RHEL you can also choose to roll back to a previous image.  When this happens any changes to /var (user accounts & app data) persist across rollback but any config changes to /etc are discarded.  
+Updates to the system are done "atomically", you rebuild the original containerfile, bringing in any software updates and changes, and push it to your container registry with a new version number.  You'll use ansible to do a "**bootc switch**" pointing to the new image, and reboot to get the updates.  In image mode RHEL you can also choose to roll back to a previous image.  When this happens any changes to /var (user accounts & app data) persist across rollback but any config changes to /etc are discarded.  
 
-A playbook "inject_creds.yml" is provided to update your booted image with your repository credentials. One thing that initially confused me was where to put quay auth credentials so that bootc switch command could access the repo.  It turned out putting the credentials in "/etc/ostree/auth.json" did the trick. We are going to create robot credentials that only expose your desired repo on quay.io and encrypt them into ansible vault, so we can have a playbook that doesn't expose your quay credentials when you run it.  
+A playbook "**inject_creds.yml**" is provided to update your booted image with your repository credentials. One thing that initially confused me was where to put quay auth credentials so that bootc switch command could access the repo.  It turned out putting the credentials in "**/etc/ostree/auth.json**" did the trick. We are going to create robot credentials that only expose your desired repo on quay.io and encrypt them into ansible vault, so we can have a playbook that doesn't expose your quay credentials when you run it.  
 
 Login to Quay.io, click your login name under "Users and Organizations", and you should see a list of your repositories.
 
@@ -131,7 +131,7 @@ The "become" password will be the password for **core** you defined up in config
 
 # Registering System and enabling Red Hat Insights
 
-Red Hat insights is a useful way to monitor and provide, well, insights to your deployed RHEL10 imagemode VM.  To enable this update the /vars/rhsm_secrets.yml file with you Red Hat login and password.  If you don't have a Red Hat account it's easy to get one at developer.redhat.com that has a few subscriptions you can experiment with.
+Red Hat insights is a useful way to monitor and provide, well, insights to your deployed RHEL10 imagemode VM.  To enable this update the **/vars/rhsm_secrets.yml** file with you Red Hat login and password.  If you don't have a Red Hat account it's easy to get one at developer.redhat.com that has a few subscriptions you can experiment with.
 ```bash
 ansible-vault encrypt vars/rhsm_secrets.yml
 ```
@@ -173,7 +173,7 @@ If this is a new version the playbook will automatically reboot you into the new
 If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.  If you like you could create a systemd task that upon upgrades checks the health of your application, and if application health dies automatically do a **bootc rollback**.  This ability to do rollbacks is very powerful for preventing outages due to dumb mistakes.  There is also the capability (not covered here) to "pin" certain images, like your failback always works image, so they are always available.  They do take storage, but since they are stored locally they are always available even if you had connectivity problems with your repo.  
 
 # Conclusion
-Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did everything from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this.
+Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did everything from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this tutorial.
 
 
 
