@@ -23,14 +23,7 @@ podman machine ssh --username core
 # Setting up
 To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images - I use quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
 
-First login to applicable registries
 
-```bash
-podman login quay.io
-sudo podman login quay.io
-podman login registry.redhat.io
-sudo podman login registry.redhat.io
-```
 git clone this repo
 ```bash
 git clone https://github.com/edhaynes/rhel10_imagemode.git
@@ -39,6 +32,16 @@ Make sure your build system is subscribed
 ```bash
 sudo subscription-manager register
 ```
+Login to applicable registries
+
+```bash
+podman login quay.io
+sudo podman login quay.io
+podman login registry.redhat.io
+sudo podman login registry.redhat.io
+```
+
+
 
 The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
 Edit your config.json to reflect your password for core and your public ssh key.  Edit password.txt for password
