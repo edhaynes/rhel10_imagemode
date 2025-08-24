@@ -93,6 +93,8 @@ Click "New" and select "virtio".
 Choose the "Import" option and select your downloaded .qcow2 file. 
 Save and boot your vm
 
+If you're running this in a home lab I'd recommend using a bridged network connection so it gets a local IP address you can connect to PHP and Nginx servers your image is running.
+
 # Prepping for Ansible
 We are going to do some lifecycle events with ansible playbooks, so update the inventory.yml file to reflect the ip addr of your VM and also the location of your private ssh key.  You put the public ssh key into the config.json before you built, right?
 
@@ -138,7 +140,7 @@ Now you should be able to see your instance at https://console.redhat.com/insigh
 
 # Using Quadlet to run an Nginx server, update it with changes
 
-Quadlet is a perfect fit for immutable OSs, you keep a small, hardened base image and then deploy applications on it using Quadlet.  Quadlet is a way to define applications in a container like fashion and have podman autogenerate the applicable files to run it via systemd at runtime.   To do this you put a quadlet file in any of several locations, depending if you want the app to run with user permissions or as a system service.  A playbook is provided to launch an Nginx server on your RHEL10 imagemode vm and map it to port 8080.  If you looked at the original containerfile you'll notice a PHP server on port 80 as well.  If you bridge your VM connection you should be able to browse to it locally.  For mac users sometimes Chrome has strict security policies with localnetwork stuff so use Safari to test.
+Quadlet is a perfect fit for immutable OSs, you keep a small, hardened base image and then deploy applications on it using Quadlet.  Quadlet is a way to define applications in a container like fashion and have podman autogenerate the applicable files to run it via systemd at runtime.   To do this you put a quadlet file in any of several locations, depending if you want the app to run with user permissions or as a system service.  A playbook is provided to launch an Nginx server on your RHEL10 imagemode vm and map it to port 8080.  If you looked at the original containerfile you'll notice a PHP server on port 80 as well.  If you bridge your VM connection you should be able to browse to it locally.  For mac users sometimes Chrome has strict security policies with localnetwork stuff so use Safari to test.  Have a look at the playbook it's a simple but powerful way to run applications.
 
 To run the quadlet file:
 ```bash
@@ -164,10 +166,10 @@ ansible-playbook -i inventory.yml bootc_update.yml --ask-become
 If this is a new version the playbook will automatically reboot you into the new image.  
 
 # Rollback to old image 
-If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.
+If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.  If you like you could create a systemd task that upon upgrades checks the health of your application, and if application health dies automatically do a **bootc rollback**.  This ability to do rollbacks is very powerful for preventing outages due to dumb mistakes.  There is also the capability (not covered here) to "pin" certain images, like your failback always works image, so they are always available.  They do take storage, but since they are stored locally they are always available even if you had connectivity problems with your repo.  
 
 # Conclusion
-Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  Let me know if you run into issues or have suggestions to improve this.
+Hope this gave you a flavor of how to accomplish some day to day activities on RHEL10 image mode.  You might notice that I never needed to login to the image to tweek anything via cli and did everything from ansible playbooks.  If you can adhere to this dicipline it makes it very easy to scale your deployment and prevent "snowflake" systems.  Let me know if you run into issues or have suggestions to improve this.
 
 
 
