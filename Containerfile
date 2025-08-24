@@ -15,7 +15,7 @@ RUN systemctl enable httpd mariadb php-fpm
 # Create user 'redhat'
 RUN useradd -m -s /bin/bash redhat
 
-# Set password for 'redhat' from a mounted Podman secret (plaintext version)
+# Set password for 'redhat' from a mounted secret (plaintext version)
 # NOTE: The secret file must contain only the password string.
 RUN --mount=type=secret,id=redhat-password \
     echo "redhat:$(cat /run/secrets/redhat-password)" | chpasswd
