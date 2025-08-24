@@ -178,7 +178,7 @@ Now run ansible playbook that switches to version 1.1.  RHEL will stage this upd
 ```bash
 ansible-playbook -i inventory.yml bootc_update.yml --ask-become
 ```
-If this is a new version the playbook will automatically reboot you into the new image.  
+If this is a new version the playbook will automatically reboot you into the new image.  If you get an error about registery permissions double check that your quay.io robot credentials have access to the repo you're trying to access.
 
 # Rollback to old image 
 If for some reason there is an issue with the new image `sudo bootc rollback` from the VM command line will take you back to your old image. Alternately in the grub bootloader you could also choose the old image.  In this case any changes to /etc will be discarded, and any changes to /var (home directory and app data) gets carried forward.  Now lets say you wished to keep both your /etc and /var layers but move back to the old image.  This is also possible by simply doing a `sudo bootc switch quay.io/ehaynes/imagemode1.0`.  In this case because the old version is "staged" it will have /var carried forward and /etc merged in to the new image during the stage.  If you like you could create a systemd task that upon upgrades checks the health of your application, and if application health dies automatically do a **bootc rollback**.  This ability to do rollbacks is very powerful for preventing outages due to dumb mistakes.  There is also the capability (not covered here) to "pin" certain images, like your failback always works image, so they are always available.  They do take storage, but since they are stored locally they are always available even if you had connectivity problems with your repo.  
