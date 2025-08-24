@@ -1,20 +1,20 @@
 # rhel10_imagemode
 Containerfile and playbooks to manage bootc imagemode rhel10 deployment
 
-This is a demonstration of a basic lifecycle workflow of managing an immutable RHEL deployment.  An immutable operating system is a system where the core components, such as the operating system files, configurations, and applications, are read-only and cannot be modified during runtime. This design enhances security and reproducibility by preventing unintended or malicious changes to the system. The only writable directories are /etc and /var, where /var is used to map user directories and application data.  The following steps are covered:
+This is a demonstration of a basic lifecycle workflow of managing an immutable RHEL deployment.  An immutable operating system is a system where the core components, such as the operating system files, configurations, and applications, are read-only and cannot be modified during runtime. This design enhances security and reproducibility by preventing unintended or malicious changes to the system. Because the image only contains the bare minimum needed to run containers and the binaries are read only this enhances security by limiting the number of things available to attack and preventing modifing system binaries.  The only writable directories are /etc and /var, where /var is used to map user directories and application data.  The following steps are covered:
 
   - Building initial boot image / container
   - Launching it as a VM locally 
   - Injecting repository credentials into image so it can get updates
   - Registering system and enabling Red Hat Insights
-  - Using Quadlet to run an Nginx server, update it with changes
+  - Using Quadlet to run an Nginx server
   - Build a new version of the base image with updates
   - Update system with the new image
   - Rollback system to previous version
 
-You'll need a container registry account like quay.io to push and pull containers from.  This also needs to be run from a registered RHEL system (i.e. where you've run subscription-manager --register) or you can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora vm, not from the mac cli which has problems with sudo commands.  You can do this with 
+You'll need a container registry account like quay.io to push and pull containers from.  The builds also must be run from a registered RHEL system (i.e. where you've run **subscription-manager register**) or you can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora vm, not from the mac cli which has problems with sudo commands.  When you run podman build i the container you create will inheret your access to the appropriate repos needed to do things like dnf update. 
 
-#for mac peeps
+#for mac users to login to the the podman machine (usually podman-machine-default)
 
 ```bash
 podman machine ssh --username core
@@ -35,10 +35,14 @@ git clone this repo
 ```bash
 git clone https://github.com/edhaynes/rhel10_imagemode.git
 ```
+Make sure your build system is subscribed
+```bash
+subscription manager --register
+```
 
-The image you'll will have two user accounts, **core** and **redhat**.  core is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  redhat is created in the containerfile, and we will pass the password we define in password.txt at build time so the Containerfile doesn't contain the plaintext password.  
+The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
 
-Define password for user **redhat**.  Somewhere in a directory outside of git put a password.txt with your preferred password and give it permissions 600.
+Define password for user **redhat** somewhere in a directory outside of git put a password.txt with your preferred password and give it permissions 600.  Note it should not have the returnline at the end of the password, strictly the password text.
 
 Build the initial bootable container image and push to repo.  Note this command needs to be run from directory with Containerfile in it.
 We're defining a --secret id redhat-password with the path to your password.txt.  Podman build temporarily mounts this at build time then unmounts it so your plaintext password doesn't end up in the image.
@@ -123,7 +127,7 @@ Run playbook with
 ```bash
 ansible-playbook -i inventory.yml inject_creds.yml --ask-become --ask-vault-pass
 ```
-The "become" password will be the password for **core** you defined up in config.json since we're using the **core** account to run the playbook.  The Vault password is whatever you defined it as when you did your **ansible-vault encrypt**
+The "become" password will be the password for **core** you defined up in config.json since we're using the **core** account to run the playbook.  The Vault password is whatever you defined it as when you did your **ansible-vault encrypt**.  This encryption of your credentials helps prevent exposure if your build environment gets posted in a public place.  
 
 # Registering System and enabling Red Hat Insights
 
@@ -138,9 +142,9 @@ ansible-playbook -i inventory.yml rhsm_register.yml --ask-become --ask-vault-pas
 Now you should be able to see your instance at https://console.redhat.com/insights
 
 
-# Using Quadlet to run an Nginx server, update it with changes
+# Using Quadlet to run an Nginx server
 
-Quadlet is a perfect fit for immutable OSs, you keep a small, hardened base image and then deploy applications on it using Quadlet.  Quadlet is a way to define applications in a container like fashion and have podman autogenerate the applicable files to run it via systemd at runtime.   To do this you put a quadlet file in any of several locations, depending if you want the app to run with user permissions or as a system service.  A playbook is provided to launch an Nginx server on your RHEL10 imagemode vm and map it to port 8080.  If you looked at the original containerfile you'll notice a PHP server on port 80 as well.  If you bridge your VM connection you should be able to browse to it locally.  For mac users sometimes Chrome has strict security policies with localnetwork stuff so use Safari to test.  Have a look at the playbook it's a simple but powerful way to run applications.
+Quadlet is a perfect fit for immutable OSs, you keep a small, hardened base image and then deploy applications on it using Quadlet.  Quadlet is a way to define applications in a container like fashion and have podman autogenerate the applicable files to run it via **systemd** at runtime.   To do this you put a quadlet file in any of several locations, depending if you want the app to run with user permissions or as a system service.  A playbook is provided to launch an Nginx server on your RHEL10 imagemode vm and map it to port 8080.  If you looked at the original containerfile you'll notice a PHP server on port 80 as well.  If you bridge your VM connection you should be able to browse to it locally, http://yourvmip:80 for the PHP server and http://yourvmip:8080 for Nginx.  For mac users Chrome has strict security policies with localnetwork stuff so use Safari to test.  Have a look at the playbook it's a simple but powerful way to run applications.  If you want to change what Nginx displays you would simply update the quadlet.yml file and rerun the ansible playbook.
 
 To run the quadlet file:
 ```bash
