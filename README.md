@@ -163,7 +163,7 @@ podman build  --pull-always --secret id=redhat-password,src=./password.txt   -t 
 podman push quay.io/ehaynes/imagemode:1.1
 ```
 # Update to new image
-Now run ansible playbook that switches to version 1.1.  RHEL will stage this update and boot into it when it reboots, playbook automatically reboots if there is a change.  First edit bootc_update.yml to update "bootc_image: quay.io/ehaynes/rhel10:1.1" to reflect your repository location and version you wish to switch to.
+Now run ansible playbook that switches to version 1.1.  RHEL will stage this update and boot into it when it reboots, playbook automatically reboots if there is a change.  First edit bootc_update.yml to update "bootc_image: quay.io/ehaynes/imagemode:1.1" to reflect your repository location and version you wish to switch to.
 ```bash
 ansible-playbook -i inventory.yml bootc_update.yml --ask-become
 ```
