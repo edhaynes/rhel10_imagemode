@@ -99,7 +99,7 @@ We are going to do some lifecycle events with ansible playbooks, so update the i
 # Injecting repository credentials
 Updates to the system are done "atomically", you rebuild the original containerfile, bringing in any software updates and changes, and push it to your container registry with a new version number.  You'll use ansible to do a "bootc switch" pointing to the new image, and reboot to get the updates.  In image mode RHEL you can also choose to roll back to a previous image.  When this happens any changes to /var (user accounts & app data) persist across rollback but any config changes to /etc are discarded.  
 
-A playbook "inject_creds.yml" is provided to update your booted image with your repository credentials. We are going to create robot credentials that only expose your desired repo on quay.io and encrypt them into ansible vault, so we can have a playbook that doesn't expose your quay credentials when you run it.  
+A playbook "inject_creds.yml" is provided to update your booted image with your repository credentials. One thing that initially confused me was where to put quay auth credentials so that bootc switch command could access the repo.  It turned out putting the credentials in "/etc/ostree/auth.json" did the trick. We are going to create robot credentials that only expose your desired repo on quay.io and encrypt them into ansible vault, so we can have a playbook that doesn't expose your quay credentials when you run it.  
 
 Login to Quay.io, click your login name under "Users and Organizations", and you should see a list of your repositories.
 
