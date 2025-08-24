@@ -69,7 +69,7 @@ sudo podman run --rm --name imagemode-bootc-image-builder --tty --privileged --s
 Now that we have a bootable qcow2 image lets run it in a VM.
 
 ```bash
-cp ./qcow2/disk.qcow2 /var/lib/libvirt/.
+cp ./qcow2/disk.qcow2 /var/lib/libvirt/imagemode.qcow2
 ```
 ```bash
 virt-install   --name r10_imagemode   --memory 2048   --vcpus 2   --disk path=/var/lib/libvirt/images/imagemode.qcow2,format=qcow2   --import   --os-variant rhel10.0   --noautoconsole
