@@ -5,7 +5,7 @@ FROM registry.redhat.io/rhel10/rhel-bootc:latest
 RUN dnf install -y \
       httpd mariadb mariadb-server \
       php-fpm php-mysqlnd \
-      sudo tcpdump \
+      sudo \
     && dnf update -y \
     && dnf clean all
 
