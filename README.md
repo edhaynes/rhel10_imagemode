@@ -73,7 +73,7 @@ Now that we have a bootable qcow2 image lets run it in a VM.
 sudo cp ./qcow2/disk.qcow2 /var/lib/libvirt/images/imagemode.qcow2
 ```
 ```bash
-virt-install \
+sudo virt-install \
   --name r10_imagemode \
   --memory 2048 \
   --vcpus 2 \
