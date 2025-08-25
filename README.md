@@ -89,7 +89,11 @@ sudo virsh start r10_imagemode
 ```bash
 sudo virsh --connect qemu:///session console r10_imagemode
 ```
-You can login to the system using user **core** and the password you defined earlier in config.json.
+You can login to the system using user **core** and the password you defined earlier in config.json.  You'll want to do
+```bash
+ip addr
+```
+to find out what your IP address of the VM is to edit your ansible inventory file in a future step.
 # Running VM on ARM based mac using UTM
 
 1. Download the .qcow2 file: From Mac:
