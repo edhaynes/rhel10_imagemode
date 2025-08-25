@@ -21,7 +21,7 @@ podman machine ssh --username core
 ```
 #note this user core has sudo access
 # Setting up
-To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images - I use quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
+To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images like quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
 
 
 git clone this repo
@@ -190,7 +190,6 @@ If for some reason there is an issue with the new image `sudo bootc rollback` fr
 Since you want to keep your immutable image as small as possible you might not install common debugging tools like tcpdump.  How can you have access to these tools for debugging sessions?  There is a cool utility called "toolbox" that downloads and runs a container (with very permissive permissions so be careful) that you can use to run debugging tools.  Since this container has DNF installed you can install tools like tcpdump and use them to debug.  Here is an example below:
 
 ```
-[core@localhost ~]$ sudo toolbox enter
 [core@localhost ~]$ sudo toolbox enter
 No Toolbx containers found. Create now? [y/N] y
 Image required to create Toolbx container.
