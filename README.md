@@ -1,7 +1,7 @@
-# rhel10_imagemode
+# RHEL 10 imagemode tutorial
 Containerfile and playbooks to manage bootc imagemode rhel10 deployment
 
-This is a demonstration of a basic lifecycle workflow of managing an immutable RHEL deployment.  An immutable operating system is a system where the core components, such as the operating system files, configurations, and applications, are read-only and cannot be modified during runtime. This design enhances security and reproducibility by preventing unintended or malicious changes to the system. Because the image only contains the bare minimum needed to run containers and the binaries are read only this enhances security by limiting the number of things available to attack and preventing modifing system binaries.  The only writable directories are /etc and /var, where /var is used to map user directories and application data.  The following steps are covered:
+This is a demonstration/tutorial of a basic lifecycle workflow of managing an immutable RHEL deployment on RHEL 10.  An immutable operating system is a system where the core components, such as the operating system files, configurations, and applications, are read-only and cannot be modified during runtime. This design enhances security and reproducibility by preventing unintended or malicious changes to the system. Because the image only contains the bare minimum needed to run containers and the binaries are read only this enhances security by limiting the number of things available to attack and preventing modifing system binaries.  The only writable directories are /etc and /var, where /var is used to map user directories and application data.  I use RHEL 10 in this tutorial but this is also available in RHEL 9.6.  The following steps are covered:
 
   - Building initial boot image / container
   - Launching it as a VM locally 
@@ -12,7 +12,7 @@ This is a demonstration of a basic lifecycle workflow of managing an immutable R
   - Update system with the new image
   - Rollback system to previous version
 
-You'll need a container registry account like quay.io to push and pull containers from.  The builds also must be run from a registered RHEL system (i.e. where you've run **subscription-manager register**) or you can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora vm, not from the mac cli which has problems with sudo commands.  When you run podman build ithe container you create will inheret your access to the appropriate repos needed to do things like dnf update. 
+You'll need a container registry account like quay.io to push and pull containers from.  The builds also must be run from a registered RHEL system (i.e. where you've run **subscription-manager register**). You can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora VM.  When you run podman build the container you create will inheret your access to the appropriate repos needed to do things like dnf update. 
 
 #for mac users to login to the the podman machine (usually podman-machine-default)
 
@@ -21,7 +21,7 @@ podman machine ssh --username core
 ```
 #note this user core has sudo access
 # Setting up
-To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images like quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
+To run this demo sucessfully you'll need a Red Hat user account (available for free at developers.redhat.com), a subscribed fedora or RHEL system to build things, podman and ansible, and some repository access to put your images like Quay.io.  You'll also need some way to run a qcow2 image as a VM, you can use libvirt on RHEL or on Mac I use UTM.
 
 
 git clone this repo
@@ -41,16 +41,14 @@ podman login registry.redhat.io
 sudo podman login registry.redhat.io
 ```
 
-
-
-The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you also should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
+The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
 Edit your config.json to reflect your password for core and your public ssh key.  Edit password.txt for password
 ```bash
 vi config.json
 ```
-Define password for user **redhat** somewhere in a directory outside of git put a password.txt with your preferred password and give it permissions 600.  This account is not used for anything in this tutorial but is used to show how you can pass passwords into your containerfile without exposing them.
+Define password for user **redhat** in a file somewhere I provide a password.txt but to be safter pit it in a directory outside git and give it permissions 600.  This account is not used for anything in this tutorial but is used to show how you can pass passwords into your containerfile without exposing them.
 
-Build the initial bootable container image and push to repo.  Note this command needs to be run from directory with Containerfile in it.
+Build the initial bootable container image and push to repo.  This command needs to be run from directory with Containerfile in it.
 We're defining a --secret id redhat-password with the path to your password.txt.  Podman build temporarily mounts this at build time then unmounts it so your plaintext password doesn't end up in the image.
 
 ```bash
