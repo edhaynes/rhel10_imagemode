@@ -42,11 +42,11 @@ sudo podman login registry.redhat.io
 ```
 
 The image you'll create will have two user accounts, **core** and **redhat**.  **core** is defined in the **config.json** file, where you should **change the password and put your public ssh key**.  **redhat** is created in the containerfile, and we will pass the password we define in **password.txt** at build time so the Containerfile doesn't contain the plaintext password.  Note this **password.txt** file should not have a returnline at the end, should strictly be the characters of your password. 
-Edit your config.json to reflect your password for core and your public ssh key.  Edit password.txt for password
+Edit your config.json to reflect your password for core and your public ssh key.  
 ```bash
 vi config.json
 ```
-Define password for user **redhat** in a file somewhere I provide a password.txt but to be safter pit it in a directory outside git and give it permissions 600.  This account is not used for anything in this tutorial but is used to show how you can pass passwords into your containerfile without exposing them.
+Define password for user **redhat** in a file somewhere.  I provide a password.txt for this but to be safter put it in a directory outside git and give it permissions 600.  This account is not used for anything in this tutorial but is used to show how you can pass passwords into your containerfile without exposing them.
 
 Build the initial bootable container image and push to repo.  This command needs to be run from directory with Containerfile in it.
 We're defining a --secret id redhat-password with the path to your password.txt.  Podman build temporarily mounts this at build time then unmounts it so your plaintext password doesn't end up in the image.
