@@ -143,7 +143,7 @@ Run playbook with
 ```bash
 ansible-playbook -i inventory.yml inject_creds.yml --ask-become --ask-vault-pass
 ```
-The "become" password will be the password for **core** you defined up in config.json since we're using the **core** account to run the playbook.  The Vault password is whatever you defined it as when you did your **ansible-vault encrypt**.  This encryption of your credentials helps prevent exposure if your build environment gets posted in a public place.  
+The "become" password will be the password for **core** you defined up in config.json since we're using the **core** account to run the playbook.  The Vault password is whatever you defined it as when you did your **ansible-vault encrypt**.  It's a good practice when writing ansible playbooks that you encrypt any plaintext passwords.  
 
 # Registering System and enabling Red Hat Insights
 
