@@ -12,7 +12,7 @@ This is a demonstration/tutorial of a basic lifecycle workflow of managing an im
   - Update system with the new image
   - Rollback system to previous version
 
-You'll need a container registry account like quay.io to push and pull containers from.  The builds also must be run from a registered RHEL system (i.e. where you've run **subscription-manager register**). You can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora VM.  When you run podman build the container you create will inheret your access to the appropriate repos needed to do things like dnf update. 
+You'll need a container registry account like quay.io to push and pull containers from.  The builds also must be run from a registered RHEL system (i.e. where you've run **subscription-manager register**). You can also install subscription manager on OS's in the RHEL ecosystem like fedora and register that way.  If you are a mac user using podman desktop ssh to your podman vm (which is a fedora-core image that has subscription manager available) and run your podman commands natively on the fedora VM.  When you run podman build the container you create will inheret your access to the appropriate repos needed to do things like dnf update. 
 
 #for mac users to login to the the podman machine (usually podman-machine-default)
 
