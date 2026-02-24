@@ -27,6 +27,6 @@ podman build \
 echo "Image built successfully: ${IMAGE_NAME}"
 
 # Optional: Push to registry if needed
-# podman push "${IMAGE_NAME}"
+podman push "${IMAGE_NAME}"
 
 echo "Build completed successfully"
